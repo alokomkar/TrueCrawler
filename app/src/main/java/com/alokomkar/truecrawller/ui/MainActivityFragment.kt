@@ -38,10 +38,13 @@ class MainActivityFragment : Fragment() {
                     .get(RequestViewModel::class.java)
             fetchLiveData()
             fetchError()
-
         }
 
-        fab.setOnClickListener { populateData() }
+        fab.setOnClickListener {
+            refreshLayout.isRefreshing = requestList.size == 0
+            requestsRvAdapter.toggleProgress( !refreshLayout.isRefreshing )
+            viewModel.execute("https://blog.truecaller.com/2018/01/22/life-as-an-android-engineer/" )
+        }
 
         rvContent.apply {
             layoutManager = LinearLayoutManager( context )
@@ -61,37 +64,26 @@ class MainActivityFragment : Fragment() {
         viewModel.fetchError().observe( this , Observer<String> { t ->
             if( t != null && rvContent != null )
                 Snackbar.make(rvContent, t, Snackbar.LENGTH_LONG).setAction(R.string.retry, {
-
+                    fab.callOnClick()
                 })
         })
     }
 
     private fun fetchLiveData() {
         viewModel.fetchLiveData().observe( this, Observer<List<CharacterRequest>> { t ->
+
             requestList.clear()
             requestList.addAll(t!!)
+            requestList.add( CharacterRequest(RequestType.TenthCharacter, "", "Detailed Description"))
+            requestList.add( CharacterRequest(RequestType.EveryTenthCharacter, "", "10th : Hi\n20th : Engineer\n30th : Day"))
+            requestList.add( CharacterRequest(RequestType.WordCounter, "", "Hi : 23\nHello : 25\nHow : 54\nYes : 34"))
             requestsRvAdapter.notifyDataSetChanged()
 
             Handler().postDelayed({
                 requestsRvAdapter.toggleProgress( false )
                 refreshLayout.isRefreshing = false
-            }, 5000)
+            }, 2000)
         })
     }
 
-    private fun populateData() {
-
-        requestsRvAdapter.toggleProgress( true )
-        requestList.clear()
-        requestList.add( CharacterRequest(RequestType.TenthCharacter, "", "Detailed Description"))
-        requestList.add( CharacterRequest(RequestType.EveryTenthCharacter, "", "10th : Hi\n20th : Engineer\n30th : Day"))
-        requestList.add( CharacterRequest(RequestType.WordCounter, "", "Hi : 23\nHello : 25\nHow : 54\nYes : 34"))
-        requestsRvAdapter.notifyDataSetChanged()
-
-        Handler().postDelayed({
-            requestsRvAdapter.toggleProgress( false )
-            refreshLayout.isRefreshing = false
-        }, 5000)
-
-    }
 }

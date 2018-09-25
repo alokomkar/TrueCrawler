@@ -8,6 +8,9 @@ import com.alokomkar.truecrawller.data.RequestRepository
 
 class RequestViewModel( private val repository : RequestRepository ) : BaseViewModel(), DataAPI {
 
+    override fun execute(url: String)
+        = repository.execute( url )
+
     override fun fetchLiveData(): LiveData<List<CharacterRequest>>
         = repository.fetchLiveData()
 

@@ -29,20 +29,23 @@ private constructor(requestService: RequestService) :
 
         val contentList = ArrayList<CharacterRequest>()
         if( params.isNotEmpty() ) {
+            try {
+                val url = params[0]
 
-            val url = params[0]
+                val document =
+                        Jsoup.connect( url )
+                                .get()
+                val paragraphs = document.getElementsContainingText(CONTENT_TAG)
+                val hashSet = HashSet<String>()
 
-            val document =
-                    Jsoup.connect( url )
-                            .header("Cache-Control", "public, max-age=" + 60 * 15 ) // If internet present
-                            .get()
-            val paragraphs = document.getElementsContainingText(CONTENT_TAG)
-            val hashSet = HashSet<String>()
+                //Eliminate duplicate sentences
+                for( para in paragraphs )
+                    hashSet.add(para.text())
 
-            //Eliminate duplicate sentences
-            for( para in paragraphs )
-                hashSet.add(para.text())
-
+                //TODO : Complete this
+            } catch ( e: Exception ) {
+                e.printStackTrace()
+            }
         }
         return contentList
     }
