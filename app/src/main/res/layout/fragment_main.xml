@@ -14,13 +14,14 @@
         android:id="@+id/refreshLayout">
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvContent"
+            tools:listitem="@layout/item_request"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
-        android:layout_margin="@dimen/default_padding"
+        android:layout_margin="@dimen/default_2x_padding"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
