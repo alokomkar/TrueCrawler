@@ -39,10 +39,15 @@ class RequestsRvAdapter( private val requests : ArrayList<CharacterRequest> ) : 
             tvTitle.text = characterRequest.requestType.toString()
             tvDetails.text = characterRequest.details
 
-            if( isProgressShown )
-                pbContent.show()
-            else
-                pbContent.hide()
+            if( isProgressShown ) {
+                pbContent.visibility = View.VISIBLE
+                tvDetails.visibility = View.INVISIBLE
+            }
+            else {
+                pbContent.visibility = View.INVISIBLE
+                tvDetails.visibility = View.VISIBLE
+            }
+
 
         }
 
