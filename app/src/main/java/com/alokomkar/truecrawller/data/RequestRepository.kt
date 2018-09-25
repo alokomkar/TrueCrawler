@@ -1,3 +1,5 @@
 package com.alokomkar.truecrawller.data
 
-interface RequestRepository
+interface RequestRepository : DataAPI {
+    fun onError( error : String )
+}

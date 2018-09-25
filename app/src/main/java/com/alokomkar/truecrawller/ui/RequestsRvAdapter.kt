@@ -1,5 +1,6 @@
 package com.alokomkar.truecrawller.ui
 
+import android.annotation.SuppressLint
 import android.support.v4.widget.ContentLoadingProgressBar
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -9,11 +10,12 @@ import android.widget.TextView
 import com.alokomkar.truecrawller.R
 import com.alokomkar.truecrawller.data.CharacterRequest
 
+@SuppressLint("InflateParams")
 class RequestsRvAdapter( private val requests : ArrayList<CharacterRequest> ) : RecyclerView.Adapter<RequestsRvAdapter.ViewHolder>() {
 
     private var isProgressShown = true
 
-    override fun onCreateViewHolder( parent : ViewGroup, viewType : Int): ViewHolder
+    override fun onCreateViewHolder(parent : ViewGroup, viewType : Int): ViewHolder
         = ViewHolder( LayoutInflater.from(parent.context).inflate( R.layout.item_request, null, false) )
 
 

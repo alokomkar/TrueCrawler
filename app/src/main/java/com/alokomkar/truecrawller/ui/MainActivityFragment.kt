@@ -1,12 +1,16 @@
 package com.alokomkar.truecrawller.ui
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.support.v4.app.Fragment
 import android.os.Bundle
 import android.os.Handler
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.alokomkar.truecrawller.Injection
 import com.alokomkar.truecrawller.R
 import com.alokomkar.truecrawller.data.CharacterRequest
 import com.alokomkar.truecrawller.data.RequestType
@@ -17,8 +21,10 @@ import kotlinx.android.synthetic.main.fragment_main.*
  */
 class MainActivityFragment : Fragment() {
 
+
     private val requestList = ArrayList<CharacterRequest>()
     private lateinit var requestsRvAdapter: RequestsRvAdapter
+    private lateinit var viewModel: RequestViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
@@ -26,16 +32,51 @@ class MainActivityFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        activity?.let {
+            viewModel = ViewModelProviders.of(it, Injection.provideViewModelFactory(activity!!))
+                    .get(RequestViewModel::class.java)
+            fetchLiveData()
+            fetchError()
+
+        }
+
         fab.setOnClickListener { populateData() }
+
         rvContent.apply {
             layoutManager = LinearLayoutManager( context )
             requestsRvAdapter = RequestsRvAdapter( requestList )
             adapter = requestsRvAdapter
+            setHasFixedSize( true )
         }
+
         refreshLayout.setOnRefreshListener {
             refreshLayout.isRefreshing = true
             fab.callOnClick()
         }
+
+    }
+
+    private fun fetchError() {
+        viewModel.fetchError().observe( this , Observer<String> { t ->
+            if( t != null && rvContent != null )
+                Snackbar.make(rvContent, t, Snackbar.LENGTH_LONG).setAction(R.string.retry, {
+
+                })
+        })
+    }
+
+    private fun fetchLiveData() {
+        viewModel.fetchLiveData().observe( this, Observer<List<CharacterRequest>> { t ->
+            requestList.clear()
+            requestList.addAll(t!!)
+            requestsRvAdapter.notifyDataSetChanged()
+
+            Handler().postDelayed({
+                requestsRvAdapter.toggleProgress( false )
+                refreshLayout.isRefreshing = false
+            }, 5000)
+        })
     }
 
     private fun populateData() {
