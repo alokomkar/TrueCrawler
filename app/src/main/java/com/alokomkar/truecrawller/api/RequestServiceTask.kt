@@ -43,6 +43,14 @@ private constructor(requestService: RequestService) :
                     hashSet.add(para.text())
 
                 //TODO : Complete this
+                //TODO : 1. Find the 10th character and display it on the screen
+
+                //TODO : 2. Find every 10th character (i.e. 10th, 20th, 30th, etc.) and display the array on the
+                //screen
+
+                //TODO : 3. Split the text into words using whitespace characters (i.e. space, tab, line break, etc.),
+                // count the occurrence of every word (case insensitive) and display the output on the screen
+
             } catch ( e: Exception ) {
                 e.printStackTrace()
             }
