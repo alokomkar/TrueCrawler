@@ -74,9 +74,6 @@ class MainActivityFragment : Fragment() {
 
             requestList.clear()
             requestList.addAll(t!!)
-            //requestList.add( CharacterRequest(RequestType.TenthCharacter, "", "Detailed Description"))
-            //requestList.add( CharacterRequest(RequestType.EveryTenthCharacter, "", "10th : Hi\n20th : Engineer\n30th : Day"))
-            //requestList.add( CharacterRequest(RequestType.WordCounter, "", "Hi : 23\nHello : 25\nHow : 54\nYes : 34"))
             requestsRvAdapter.notifyDataSetChanged()
 
             Handler().postDelayed({

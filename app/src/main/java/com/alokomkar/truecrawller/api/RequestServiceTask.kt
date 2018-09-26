@@ -1,6 +1,7 @@
 package com.alokomkar.truecrawller.api
 
 import android.os.AsyncTask
+import android.util.Log
 import com.alokomkar.truecrawller.data.CharacterRequest
 import com.alokomkar.truecrawller.data.RequestType
 import org.jsoup.Jsoup
@@ -43,8 +44,10 @@ private constructor(requestService: RequestService) :
                         Jsoup.connect( url )
                                 .get()
                 val paragraphs = document.getElementsContainingText(CONTENT_TAG)
+                Log.d( CONTENT_TAG, paragraphs.toString() )
 
                 val paraList = ArrayList<String>()
+
                 for( para in paragraphs )
                     paraList.addAll(ArrayList(para.text()
                             .replace("[-+.^:,;']","")
