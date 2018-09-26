@@ -2,16 +2,23 @@ package com.alokomkar.truecrawller.api
 
 import android.os.AsyncTask
 import com.alokomkar.truecrawller.data.CharacterRequest
+import com.alokomkar.truecrawller.data.RequestType
 import org.jsoup.Jsoup
-import java.util.HashSet
+import java.util.HashMap
+import kotlin.collections.ArrayList
+import kotlin.collections.List
+import kotlin.collections.isNotEmpty
+import kotlin.collections.set
 
-@Suppress("PrivatePropertyName")
+@Suppress("PrivatePropertyName", "StaticFieldLeak")
 class RequestServiceTask
 private constructor(requestService: RequestService) :
-        AsyncTask<String, Void, List<CharacterRequest>>(), RequestService {
+        AsyncTask<String, Void, ArrayList<String>?>(), RequestService {
 
     private val CONTENT_TAG = "content"
     private var requestService : RequestService ?= requestService
+    private val contentList = ArrayList<CharacterRequest>()
+    private var currentUrl : String = ""
 
     override fun onDataFetched(contentList: List<CharacterRequest>) {
         requestService?.onDataFetched( contentList )
@@ -22,13 +29,13 @@ private constructor(requestService: RequestService) :
     }
 
     override fun execute(url: String) {
+        this.currentUrl = url
         this.executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR, url )
     }
 
-    override fun doInBackground(vararg params: String?): List<CharacterRequest> {
+    override fun doInBackground(vararg params: String?): ArrayList<String>? {
 
-        val contentList = ArrayList<CharacterRequest>()
-        if( params.isNotEmpty() ) {
+        return if( params.isNotEmpty() ) {
             try {
                 val url = params[0]
 
@@ -36,32 +43,89 @@ private constructor(requestService: RequestService) :
                         Jsoup.connect( url )
                                 .get()
                 val paragraphs = document.getElementsContainingText(CONTENT_TAG)
-                val hashSet = HashSet<String>()
 
-                //Eliminate duplicate sentences
+                val paraList = ArrayList<String>()
                 for( para in paragraphs )
-                    hashSet.add(para.text())
+                    paraList.addAll(ArrayList(para.text()
+                            .replace("[-+.^:,;']","")
+                            .replace("  ", " ")
+                            .split(" ")))
 
-                //TODO : Complete this
-                //TODO : 1. Find the 10th character and display it on the screen
-
-                //TODO : 2. Find every 10th character (i.e. 10th, 20th, 30th, etc.) and display the array on the
-                //screen
-
-                //TODO : 3. Split the text into words using whitespace characters (i.e. space, tab, line break, etc.),
-                // count the occurrence of every word (case insensitive) and display the output on the screen
+                paraList
 
             } catch ( e: Exception ) {
                 e.printStackTrace()
+                null
             }
         }
-        return contentList
+        else null
+
     }
 
-    override fun onPostExecute(result: List<CharacterRequest>?) {
-        super.onPostExecute(result)
-        if( result != null ) onDataFetched( result )
+    override fun onPostExecute( paragraphs : ArrayList<String>? ) {
+        super.onPostExecute(paragraphs)
+        contentList.clear()
+        if( paragraphs != null ) {
+            wordOperation( RequestType.WordCounter, paragraphs )
+            wordOperation( RequestType.TenthCharacter, paragraphs )
+            wordOperation( RequestType.EveryTenthCharacter, paragraphs )
+        }
         else onError("Unable to fetch data" )
+
+    }
+
+    private fun wordOperation( requestType : RequestType, paragraphs: ArrayList<String> ) {
+
+        object : AsyncTask<Void, Void, CharacterRequest>() {
+            override fun doInBackground(vararg p0: Void?): CharacterRequest {
+                val characterRequest = CharacterRequest( requestType, currentUrl )
+
+                when( requestType ) {
+                    RequestType.EveryTenthCharacter -> {
+
+                        if( paragraphs.size > 10 ) {
+                            var index = 10
+                            while( index < paragraphs.size ) {
+                                //Replace this with String builder
+                                characterRequest.details += index.toString() + "th Word : " + paragraphs[index]
+                                index += 10
+                            }
+                        }
+                        else
+                            characterRequest.error = "Less than 10 words"
+
+                    }
+                    RequestType.WordCounter -> {
+
+                        val countMap = HashMap<String, Int>()
+                        for( word in paragraphs )
+                            countMap[word] = if( countMap.containsKey( word ))  countMap[word]!! + 1 else 1
+
+                        if( countMap.isEmpty() )
+                            characterRequest.error = "No words"
+                        else
+                            characterRequest.details = "All Words Count : \n $countMap"
+
+                    }
+                    RequestType.TenthCharacter -> {
+
+                        if( paragraphs.size > 10 )
+                            characterRequest.details = "10th Word : " + paragraphs[10]
+                        else
+                            characterRequest.error = "Less than 10 words"
+
+                    }
+                }
+
+                return characterRequest
+            }
+
+            override fun onPostExecute(result: CharacterRequest) {
+                super.onPostExecute(result)
+                contentList.add( result )
+                onDataFetched( contentList )
+            }
+        }.executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR )
     }
 
     companion object {
