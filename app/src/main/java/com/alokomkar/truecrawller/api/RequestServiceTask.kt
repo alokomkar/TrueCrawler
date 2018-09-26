@@ -90,7 +90,7 @@ private constructor(requestService: RequestService) :
                             var index = 10
                             while( index < paragraphs.size ) {
                                 //Replace this with String builder
-                                characterRequest.details += index.toString() + "th Word : " + paragraphs[index]
+                                characterRequest.details += index.toString() + "th Word : " + paragraphs[index] + "\n"
                                 index += 10
                             }
                         }
@@ -106,8 +106,12 @@ private constructor(requestService: RequestService) :
 
                         if( countMap.isEmpty() )
                             characterRequest.error = "No words"
-                        else
-                            characterRequest.details = "All Words Count : \n $countMap"
+                        else {
+                            characterRequest.details = "All Words Count : \n"
+                            for( (key, value) in countMap )
+                                characterRequest.details += "$key : $value\n"
+                        }
+
 
                     }
                     RequestType.TenthCharacter -> {
