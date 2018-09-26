@@ -13,7 +13,7 @@ object Injection {
      * Creates an instance of [RequestRepositoryImpl] based on the [WeatherService]
      */
     private fun provideRequestRepository(context: Context): RequestRepository {
-        return RequestRepositoryImpl()
+        return RequestRepositoryImpl( )
     }
 
     /**

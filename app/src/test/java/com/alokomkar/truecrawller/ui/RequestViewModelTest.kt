@@ -1,24 +1,28 @@
 package com.alokomkar.truecrawller.ui
 
-import android.arch.lifecycle.Observer
+import android.arch.core.executor.testing.InstantTaskExecutorRule
 import com.alokomkar.truecrawller.data.CharacterRequest
 import com.alokomkar.truecrawller.data.RequestRepository
 import com.alokomkar.truecrawller.data.RequestType
-import android.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.common.collect.Lists
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.*
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.MockitoAnnotations
 
 class RequestViewModelTest {
 
+    //To mock response
     private val characterRequestList = Lists.newArrayList(
             CharacterRequest(RequestType.TenthCharacter, "https://truecaller.com", "10th Word : Second", ""),
             CharacterRequest(RequestType.EveryTenthCharacter, "https://truecaller.com", "10th Word : Second\n20th Word : Second\n30th Word : Second\n", ""),
             CharacterRequest(RequestType.WordCounter, "https://truecaller.com", "All Word Count :\nSecond : 3", "")
     )
+
+    private val URL = "https://truecaller.com"
 
     /**
      * To bypass the main thread check
@@ -31,13 +35,6 @@ class RequestViewModelTest {
 
     private lateinit var viewModel: RequestViewModel
 
-    /**
-     * [ArgumentCaptor] is a powerful Mockito API to capture argument values and use them to
-     * perform further actions or assertions on them.
-     */
-    @Captor
-    private val loadRequestListObserver: ArgumentCaptor<Observer<List<CharacterRequest>>>? = null
-
     @Before
     fun setupRequestViewModel() {
         // Mockito has a very convenient way to inject mocks by using the @Mock annotation. To
@@ -49,14 +46,32 @@ class RequestViewModelTest {
     }
 
     @Test
-    fun loadRequestListFromRepositoryAndShowInView() {
+    fun loadRequestListFromRepository() {
         // Use the initialized viewModel to fetch request data
         viewModel.fetchLiveData()
 
         Mockito.verify(repository)
                 .fetchLiveData()
 
-        loadRequestListObserver!!.value.onChanged( characterRequestList )
+    }
+
+    @Test
+    fun loadErrorFromRepository() {
+        // Use the initialized viewModel to fetch request data
+        viewModel.fetchError()
+
+        Mockito.verify(repository)
+                .fetchError()
+
+    }
+
+    @Test
+    fun callUrlFromRepository() {
+        // Use the initialized viewModel to fetch request data
+        viewModel.execute(URL)
+
+        Mockito.verify(repository)
+                .execute(URL)
 
     }
 }
