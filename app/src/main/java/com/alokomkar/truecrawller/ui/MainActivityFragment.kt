@@ -74,11 +74,9 @@ class MainActivityFragment : Fragment() {
             requestList.clear()
             requestList.addAll(t!!)
             requestsRvAdapter.notifyDataSetChanged()
+            requestsRvAdapter.toggleProgress( false )
+            refreshLayout.isRefreshing = false
 
-            Handler().postDelayed({
-                requestsRvAdapter.toggleProgress( false )
-                refreshLayout.isRefreshing = false
-            }, 2000)
         })
     }
 

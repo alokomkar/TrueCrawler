@@ -17,8 +17,8 @@ import org.junit.runner.RunWith
 @SmallTest
 class MainScreenTest {
 
-    @Rule
-    var mNotesActivityTestRule = ActivityTestRule<MainActivity>(MainActivity::class.java)
+    @get:Rule
+    var mActivityTestRule = ActivityTestRule<MainActivity>(MainActivity::class.java)
 
     @Test
     @Throws(Exception::class)
